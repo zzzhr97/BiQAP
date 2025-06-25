@@ -1,0 +1,76 @@
+# directory: options/{NAME}, experiments/{NAME}
+name: test_1
+gpu: 1
+mode: test
+
+dataset:
+  name: L500
+  problem: KBQAP
+  module: LargeDataset
+  train_length: 0
+  eval_length: ~  # all the test dataset
+  num_workers: 2
+  preload: True
+  batch_size: 1
+
+model:
+  name: BiQAP
+  # Pretrained_path: model weight file you want to test
+  #   like `experiments/L500/train_xxx/model/model_5000.pth`
+  pretrained_path: ~ 
+fp16: False
+random_seed: 123
+
+loss: 
+  name: uns_KBQAP
+
+eval:
+  forward_time: 1
+  print_fq: 25
+  eval_fq: 500    # evaluation + model save
+  max_save: ~
+
+model_setting:
+  sample_batch_size: 1
+  backbone:
+    block_nums: [3,3,3,3]
+    block_dim: 16
+    d_state: 16
+    d_conv: 4
+    expand: 2
+    ln: "11"
+  train_setting:
+    gromov_iters: 10
+    norm: Linf
+    psinkhorn_iters: 15
+    psinkhorn_tau: 0.05
+    gumbel: True
+    gumbel_size: [
+      16,0,0,0,0,
+      0,0,0,0,0
+    ]
+    gumbel_lambda: [
+      1,0,0,0,0,
+      0,0,0,0,0
+    ]
+  test_setting:
+    gromov_iters: 20
+    norm: Linf
+    psinkhorn_iters: 25
+    psinkhorn_tau: 0.05
+    gumbel: True
+    gumbel_size: [
+      128,0,0,0,0,
+      0,0,0,0,0,
+      0,0,0,0,0,
+      0,0,0,0,0
+    ]
+    gumbel_lambda: [
+      1,0,0,0,0,
+      0,0,0,0,0,
+      0,0,0,0,0,
+      0,0,0,0,0
+    ]
+
+post_process:
+  name: Hungarian

@@ -1,0 +1,91 @@
+# directory: options/{NAME}, experiments/{NAME}
+name: train_tai
+gpu: 1
+mode: train
+
+dataset:
+  name: QAPLIB
+  problem: KBQAP
+  module: QAPLIBDataset
+  train_length: ~
+  eval_length: ~ 
+  num_workers: 1
+  preload: True
+  batch_size: 1
+  class: tai
+  # classes: bur, chr, els, esc, had, kra, lipa, nug, rou, scr, sko, ste, tai, tho, wil
+  # or class: ~
+
+model:
+  name: BiQAP
+  pretrained_path: ~
+fp16: False
+random_seed: 123
+
+train:
+  total_epoch: ~
+  total_step: 2000
+  cumulative_size: 1
+  optimizer:
+    name: Adam
+    lr: !!float 1e-6
+    wd: !!float 1e-8
+    betas: [0.9, 0.999]
+    momentum: 0.9
+  scheduler:
+    name: MultiStepLR
+    milestones: [20000]
+    gamma: 0.5
+
+loss: 
+  name: uns_KBQAP
+
+eval:
+  forward_time: 8
+  print_fq: 5
+  eval_fq: 25    # evaluation + model save
+  max_save: ~
+
+model_setting:
+  sample_batch_size: 8
+  backbone: 
+    block_nums: [3,3,3,3]
+    block_dim: 32
+    d_state: 16
+    d_conv: 4
+    expand: 2
+  train_setting:
+    gromov_iters: 10
+    norm: Linf
+    psinkhorn_iters: 15
+    psinkhorn_tau: 0.05
+    gumbel: True
+    gumbel_size: [
+      16,0,0,0,0,
+      0,0,0,0,0
+    ]
+    gumbel_lambda: [
+      1,0,0,0,0,
+      0,0,0,0,0
+    ]
+  test_setting:
+    gromov_iters: 20
+    norm: Linf
+    psinkhorn_iters: 25
+    psinkhorn_tau: 0.05
+    gumbel: True
+    gumbel_size: [
+      512,0,0,0,0,
+      0,0,0,0,0,
+      0,0,0,0,0,
+      0,0,0,0,2
+    ]
+    gumbel_lambda: [
+      1,0,0,0,0,
+      0,0,0,0,0,
+      0,0,0,0,0,
+      0,0,0,0,0.002
+    ]
+
+post_process:
+  name: Hungarian

@@ -1,0 +1,8 @@
+mamba_ssm==2.0.4
+causal-conv1d==1.2.0.post1
+numpy
+PyYAML
+scipy
+torch==1.12.0
+torchvision
+tqdm

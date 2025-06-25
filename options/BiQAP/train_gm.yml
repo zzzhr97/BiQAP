@@ -1,0 +1,90 @@
+# directory: options/{NAME}, experiments/{NAME}
+name: train_1
+gpu: 0
+mode: train
+
+dataset:
+  name: GM1
+  problem: KBQAP
+  module: GMDataset
+  train_length: ~
+  eval_length: ~ 
+  num_workers: 1
+  preload: True
+  batch_size: 8
+
+model:
+  name: BiQAP
+  pretrained_path: ~
+fp16: False
+random_seed: 123
+
+train:
+  total_epoch: ~
+  total_step: 10000
+  cumulative_size: 2
+  optimizer:
+    name: Adam
+    lr: !!float 3e-6
+    wd: !!float 1e-9
+    betas: [0.9, 0.999]
+    momentum: 0.9
+  scheduler:
+    name: MultiStepLR
+    milestones: [40000, 40000, 40000]
+    gamma: 0.5
+
+loss: 
+  name: uns_KBQAP
+
+eval:
+  forward_time: 1
+  print_fq: 25
+  eval_fq: 500    # evaluation + model save
+  max_save: ~
+  mix: False
+
+model_setting:
+  sample_batch_size: 1
+  backbone:
+    block_nums: [3,3,3,3]
+    block_dim: 32
+    d_state: 16
+    d_conv: 4
+    expand: 2
+    ln: "11"
+  train_setting:
+    gromov_iters: 10
+    norm: Linf
+    psinkhorn_iters: 15
+    psinkhorn_tau: 0.05
+    gumbel: True
+    gumbel_size: [
+      32,0,0,0,0,
+      0,0,0,0,0
+    ]
+    gumbel_lambda: [
+      1,0,0,0,0,
+      0,0,0,0,0
+    ]
+  test_setting:
+    gromov_iters: 20
+    norm: Linf
+    psinkhorn_iters: 25
+    psinkhorn_tau: 0.05
+    gumbel: True
+    gumbel_size: [
+      128,0,0,0,0,
+      0,0,0,0,0,
+      0,0,0,0,0,
+      0,0,0,0,0
+    ]
+    gumbel_lambda: [
+      1,0,0,0,0,
+      0,0,0,0,0,
+      0,0,0,0,0,
+      0,0,0,0,0
+    ]
+
+post_process:
+  name: Hungarian

@@ -1,0 +1,89 @@
+# directory: options/{NAME}, experiments/{NAME}
+name: train_1
+gpu: 0
+mode: train
+
+dataset:
+  name: Linux
+  problem: KBQAP
+  module: GEDDataset
+  train_length: ~
+  eval_length: 1000
+  num_workers: 4
+  preload: True
+  batch_size: 1
+
+model:
+  name: BiQAP
+  pretrained_path: ~
+fp16: False
+random_seed: 123
+
+train:
+  total_epoch: ~
+  total_step: 10000
+  cumulative_size: 32
+  optimizer:
+    name: Adam
+    lr: !!float 2e-6
+    wd: !!float 1e-8
+    betas: [0.9, 0.999]
+    momentum: 0.9
+  scheduler:
+    name: MultiStepLR
+    milestones: [6000, 8000]
+    gamma: 0.5
+
+loss: 
+  name: uns_KBQAP
+
+eval:
+  forward_time: 1
+  print_fq: 25
+  eval_fq: 500    # evaluation + model save
+  max_save: ~
+
+model_setting:
+  sample_batch_size: 1
+  backbone:
+    block_nums: [3,3,3,3]
+    block_dim: 32
+    d_state: 16
+    d_conv: 4
+    expand: 2
+    ln: "10"
+  train_setting:
+    gromov_iters: 10
+    norm: Linf
+    psinkhorn_iters: 15
+    psinkhorn_tau: 0.05
+    gumbel: True
+    gumbel_size: [
+      16,0,0,0,0,
+      0,0,0,0,0
+    ]
+    gumbel_lambda: [
+      1,0,0,0,0,
+      0,0,0,0,0
+    ]
+  test_setting:
+    gromov_iters: 20
+    norm: Linf
+    psinkhorn_iters: 25
+    psinkhorn_tau: 0.05
+    gumbel: True
+    gumbel_size: [
+      128,0,0,0,0,
+      0,0,0,0,0,
+      0,0,0,0,0,
+      0,0,0,0,0
+    ]
+    gumbel_lambda: [
+      1,0,0,0,0,
+      0,0,0,0,0,
+      0,0,0,0,0,
+      0,0,0,0,0
+    ]
+
+post_process:
+  name: Hungarian
